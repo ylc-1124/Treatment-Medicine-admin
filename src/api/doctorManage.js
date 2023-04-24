@@ -25,5 +25,12 @@ export default {
       url: `/doctor/${id}`,
       method: 'get'
     })
+  },
+  registerDoctor(doctorRegister){
+    return request({
+      url: '/doctor/register',
+      method: 'post',
+      data: doctorRegister
+    })
   }
 }

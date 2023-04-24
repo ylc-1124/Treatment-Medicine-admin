@@ -49,15 +49,15 @@
 
     <!--  医生注册对话框-->
     <el-dialog @close="clearyszcForm" title="医生注册" :visible.sync="yszcDialog" width="50%" >
-      <el-form ref="yszcFormRef" :model="yszcForm" :rules="rules">
+      <el-form ref="yszcFormRef" :model="yszcForm" >
         <el-row>
           <el-col :span="12">
-            <el-form-item label="用户名" :label-width="formLabelWidth" prop="username">
+            <el-form-item label="用户名" :label-width="formLabelWidth" >
               <el-input v-model="yszcForm.userInfo.username" autocomplete="off"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item  label="登录密码" :label-width="formLabelWidth" prop="password">
+            <el-form-item  label="登录密码" :label-width="formLabelWidth" >
               <el-input type="password" v-model="yszcForm.userInfo.password" autocomplete="off"></el-input>
             </el-form-item>
           </el-col>
@@ -89,15 +89,13 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="电子邮件" :label-width="formLabelWidth" prop="email">
+            <el-form-item label="电子邮件" :label-width="formLabelWidth">
               <el-input v-model="yszcForm.userInfo.email" autocomplete="off"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="医院&科室" :label-width="formLabelWidth">
-              <span>
-                {{yszcForm.doctorInfo.hospName}}
-              </span>
+              <el-tag v-if="yszcForm.doctorInfo.hospName">{{yszcForm.doctorInfo.hospName}}</el-tag>
               <!-- 弹出子对话框，选择医院和科室-->
               <el-button type="primary" @click="openHospitalDialog" size="small" icon="el-icon-edit" circle></el-button>
             </el-form-item>
@@ -106,7 +104,7 @@
         <!--          嵌套医院对话框-->
         <el-dialog
           @close="clearHospitalDialog"
-          width="45%"
+          width="47%"
           title="查询医院"
           :visible.sync="hospitalDialogVisible"
           append-to-body>
@@ -131,15 +129,15 @@
               </el-table-column>
               <el-table-column
                 prop="address"
-                label="所在地"
-                width="180">
+                label="所在地">
               </el-table-column>
               <el-table-column
-                label="选择科室">
+                label="选择科室"
+                width="250px">
                 <template slot-scope="scope">
                   <el-row>
-                    <el-col :span="12">
-                      <el-select @click="getDepartmentOptionsByHospId(scope.row.id)" v-model="yszcForm.doctorInfo.departmentId"  placeholder="请选择" size="small" clearable>
+                    <el-col :span="17">
+                      <el-select @focus="getDepartmentOptionsByHospId(scope.row.id)" v-model="yszcForm.doctorInfo.departmentId"  placeholder="请选择" size="small" clearable>
                         <el-option
                           v-for="item in departmentOptions"
                           :key="item.value"
@@ -148,7 +146,7 @@
                         </el-option>
                       </el-select>
                     </el-col>
-                    <el-col :span="12">
+                    <el-col :span="4">
                       <el-button  type="success" @click="setHospIdAndClose(scope.row)" size="small" icon="el-icon-check" circle ></el-button>
                     </el-col>
                   </el-row>
@@ -182,11 +180,11 @@
                 class="avatar-uploader"
                 :action="uploadURL"
                 :show-file-list="false"
-                list-type="picture-card"
                 :limit="1"
+                list-type="picture-card"
                 :on-success="handleZJZSuccess"
                 :before-upload="beforeAvatarUpload">
-                <img v-if="yszcForm.doctorInfo.photo" :src="yszcForm.doctorInfo.photo" class="avatar">
+                <img v-if="zjzUrl" :src="zjzUrl" alt="" width="100%">
                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
               </el-upload>
             </el-form-item>
@@ -196,12 +194,12 @@
               <el-upload
                 class="avatar-uploader"
                 :action="uploadURL"
-                list-type="picture-card"
                 :limit="1"
+                list-type="picture-card"
                 :show-file-list="false"
                 :on-success="handleCertiSuccess"
                 :before-upload="beforeAvatarUpload">
-                <img v-if="yszcForm.doctorInfo.certification" :src="yszcForm.doctorInfo.certification" class="avatar">
+                <img v-if="certificationUrl" :src="certificationUrl" width="100%" alt="">
                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
               </el-upload>
             </el-form-item>
@@ -232,7 +230,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="yszcDialog = false">取 消</el-button>
-        <el-button type="primary" @click="saveDoctor">提 交</el-button>
+        <el-button type="primary" @click="saveDoctor">注 册</el-button>
       </div>
     </el-dialog>
   </div>
@@ -240,6 +238,12 @@
 
 <script>
 import { validUsername } from '@/utils/validate'
+import hospApi from '@/api/hospitalManage'
+import departmentApi from '@/api/departmentManage'
+import doctorApi from '@/api/doctorManage'
+import message from 'element-ui/packages/message'
+import roleApi from '@/api/roleManage'
+
 export default {
   name: 'Login',
   data() {
@@ -265,24 +269,17 @@ export default {
       callback()
     }
     return {
-      uploadURL: process.env.VUE_APP_BASE_API + '/upload', //图片上传的URL，后端保存到阿里云OSS中，并返回访问的URL地址
-      departmentOptions: [{
-        value: 1,
-        label: '儿科'
-      }, {
-        value: 2,
-        label: '骨科'
-      }, {
-        value: 3,
-        label: '外科'
-      }, {
-        value: 4,
-        label: '内科'
-      }],
+      zjzUrl: '',
+      certificationUrl: '',
+      uploadURL: process.env.VUE_APP_BASE_API + '/oss/fileUpload', //图片上传的URL，后端保存到阿里云OSS中，并返回访问的URL地址
+      departmentOptions: [], //根据医院ID查询出的科室选项
       total: 0,
-      hospitalList: [{id: 1,hospName: '西京医院',address: '西安市未央区'}], //查询出的医院列表
+      hospitalList: [], //查询出的医院列表
       hospitalDialogVisible: false,
-      searchModel:{},
+      searchModel:{
+        pageNo: 1,
+        pageSize: 10
+      },
       yszcForm: {userInfo:{},doctorInfo:{}},
       formLabelWidth: '100px',
       yszcDialog: false,
@@ -290,20 +287,20 @@ export default {
         username: 'admin',
         password: '123456'
       },
-      rules: {
-        username: [
-          { required: true, message: '请输入用户名', trigger: 'blur' },
-          { min: 3, max: 50, message: '长度在 3 到 50 个字符', trigger: 'blur' }
-        ],
-        password: [
-          { required: true, message: '请输入初始密码', trigger: 'blur' },
-          { min: 6, max: 16, message: '长度在 6 到 16 个字符', trigger: 'blur' }
-        ],
-        email: [
-          { required: true, message: '请输入电子邮箱', trigger: 'blur' },
-          { validator: checkEmail, trigger: 'blur' }
-        ]
-      },
+      // rules: {
+      //   username: [
+      //     { required: true, message: '请输入用户名', trigger: 'blur' },
+      //     { min: 3, max: 50, message: '长度在 3 到 50 个字符', trigger: 'blur' }
+      //   ],
+      //   password: [
+      //     { required: true, message: '请输入初始密码', trigger: 'blur' },
+      //     { min: 6, max: 16, message: '长度在 6 到 16 个字符', trigger: 'blur' }
+      //   ],
+      //   email: [
+      //     { required: true, message: '请输入电子邮箱', trigger: 'blur' },
+      //     { validator: checkEmail, trigger: 'blur' }
+      //   ]
+      // },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
         password: [{ required: true, trigger: 'blur', validator: validatePassword }]
@@ -331,23 +328,44 @@ export default {
         type: 'success'
       })
     },
-    //获取医院所有的科室
+    //根据医院ID获取其拥有的科室
     getDepartmentOptionsByHospId(hospId){
-
+      departmentApi.getDepartmentOptionsByHospId(hospId).then(
+        response => {
+          this.departmentOptions = response.data
+        }
+      )
     },
+    //获取医院列表
     getHospitalList(){
-
+      hospApi.getHospitalList(this.searchModel).then(
+        response => {
+          this.hospitalList = response.data.rows
+          this.total = response.data.total
+        }
+      )
     },
     clearHospitalDialog(){
-      this.searchModel = {}
+      this.searchModel = {pageNo: 1,pageSize: 10}
+      this.hospitalList = []
     },
     //证件照上传成功
     handleZJZSuccess(res, file) {
-      this.yszcForm.doctorInfo.photo = URL.createObjectURL(file.raw);
+      this.yszcForm.doctorInfo.photo = res.data  //注入url
+      this.zjzUrl = URL.createObjectURL(file.raw); //回显上传的图片
+      this.$message({
+        message: res.msg,
+        type: 'success'
+      })
     },
     //从医资质证明上传成功
     handleCertiSuccess(res, file) {
-      this.yszcForm.doctorInfo.certification = URL.createObjectURL(file.raw);
+      this.yszcForm.doctorInfo.certification = res.data
+      this.certificationUrl = URL.createObjectURL(file.raw);
+      this.$message({
+        message: res.msg,
+        type: 'success'
+      })
     },
     beforeAvatarUpload(file) {
       const isJPG = file.type === 'image/jpeg';
@@ -362,7 +380,32 @@ export default {
       return isJPG && isLt2M;
     },
     saveDoctor(){
-
+      doctorApi.registerDoctor(this.yszcForm).then(
+        response => {
+          this.$message({
+            message: response.msg,
+            type: 'success'
+          })
+          this.yszcDialog = false
+        }
+      )
+      // 触发表单验证
+      // this.$refs.yszcFormRef.validate((valid) => {
+      //   if (valid) {
+      //     doctorApi.registerDoctor(this.yszcForm.userInfo,this.yszcForm.doctorInfo).then(
+      //       response => {
+      //         this.$message({
+      //           message: response.msg,
+      //           type: 'success'
+      //         })
+      //         this.yszcDialog = false
+      //       }
+      //     )
+      //   } else {
+      //     console.log('表单校验未通过')
+      //     return false
+      //   }
+      // })
     },
     openHospitalDialog(){
       this.hospitalDialogVisible = true
@@ -556,11 +599,6 @@ $light_gray:#eee;
   height: 120px;
   line-height: 120px;
   text-align: center;
-}
-.avatar {
-  width: 120px;
-  height: 120px;
-  display: block;
 }
 
 .el-button{
