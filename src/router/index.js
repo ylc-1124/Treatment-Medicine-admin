@@ -77,54 +77,6 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/drug',
-    component: Layout,
-    redirect: '/drug/query',
-    name: 'drugManage',
-    meta: { title: '药品管理', icon: 'drug' },
-    children: [
-      {
-        path: 'info',
-        name: 'DrugInfo',
-        component: () => import('@/views/drug/info'),
-        meta: { title: '药品信息管理', icon: 'drug' }
-      },
-      {
-        path: 'query',
-        name: 'DrugQuery',
-        component: () => import('@/views/drug/query'),
-        meta: { title: '药品信息查询', icon: 'query' }
-      },
-      {
-        path: 'buy',
-        name: 'DrugBuy',
-        component: () => import('@/views/drug/buy'),
-        meta: { title: '购买药品', icon: 'drugBuy' }
-      }
-    ]
-  },
-  {
-    path: '/drugManufacturer',
-    component: Layout,
-    redirect: '/drugManufacturer/query',
-    name: 'drugManufacturerManage',
-    meta: { title: '药品厂家管理', icon: 'factory' },
-    children: [
-      {
-        path: 'info',
-        name: 'DrugManufacturerInfo',
-        component: () => import('@/views/drugManufacturer/info'),
-        meta: { title: '药品厂家信息管理', icon: 'factory' }
-      },
-      {
-        path: 'query',
-        name: 'DrugManufacturerQuery',
-        component: () => import('@/views/drugManufacturer/query'),
-        meta: { title: '药品厂家查询', icon: 'query' }
-      }
-    ]
-  },
-  {
     path: '/doctor',
     component: Layout,
     redirect: '/doctor/query',
@@ -142,12 +94,6 @@ export const constantRoutes = [
         name: 'DoctorCheck',
         component: () => import('@/views/doctor/check'),
         meta: { title: '医生资质审核', icon: 'doctorCheck' }
-      },
-      {
-        path: 'query',
-        name: 'DoctorQuery',
-        component: () => import('@/views/doctor/query'),
-        meta: { title: '找医生', icon: 'doctorQuery' }
       }
     ]
   },
@@ -167,6 +113,36 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/drug',
+    component: Layout,
+    redirect: '/drug/query',
+    name: 'drugManage',
+    meta: { title: '药品管理', icon: 'drug' },
+    children: [
+      {
+        path: 'info',
+        name: 'DrugInfo',
+        component: () => import('@/views/drug/info'),
+        meta: { title: '药品信息管理', icon: 'drug' }
+      }
+    ]
+  },
+  {
+    path: '/drugManufacturer',
+    component: Layout,
+    redirect: '/drugManufacturer/info',
+    name: 'drugManufacturerManage',
+    meta: { title: '药品厂家管理', icon: 'factory' },
+    children: [
+      {
+        path: 'info',
+        name: 'DrugManufacturerInfo',
+        component: () => import('@/views/drugManufacturer/info'),
+        meta: { title: '药品厂家信息管理', icon: 'factory' }
+      }
+    ]
+  },
+  {
     path: '/order',
     component: Layout,
     redirect: '/order/info',
@@ -182,17 +158,74 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/findDoctor',
+    component: Layout,
+    redirect: '/findDoctor',
+    name: 'findDoctor',
+    meta: { title: '找医生', icon: 'doctorQuery' },
+    children: [
+      {
+        path: 'byHospital',
+        name: 'findByHospital',
+        component: () => import('@/views/findDoctor/byHospital'),
+        meta: { title: '按医院查找', icon: 'doctorQuery' }
+      },
+      {
+        path: 'byDepartment',
+        name: 'findByDepartment',
+        component: () => import('@/views/findDoctor/byDepartment'),
+        meta: { title: '按科室推荐', icon: 'doctorQuery' }
+      }
+    ]
+  },
+  {
+    path: '/findDrug',
+    component: Layout,
+    redirect: '/findDrug/buy',
+    name: 'findDrug',
+    meta: { title: '药品查询&购买', icon: 'drug' },
+    children: [
+      {
+        path: 'query',
+        name: 'drugQuery',
+        component: () => import('@/views/findDrug/query'),
+        meta: { title: '药品信息查询', icon: 'query' }
+      },
+      {
+        path: 'buy',
+        name: 'drugBuy',
+        component: () => import('@/views/findDrug/buy'),
+        meta: { title: '购买药品', icon: 'drugBuy' }
+      }
+    ]
+  },
+  {
     path: '/prescription',
     component: Layout,
     redirect: '/prescription/query',
     name: 'prescriptionManage',
-    meta: { title: '处方管理', icon: 'prescription' },
+    meta: { title: '处方', icon: 'prescription' },
     children: [
       {
         path: 'query',
         name: 'PrescriptionQuery',
         component: () => import('@/views/prescription/query'),
         meta: { title: '处方查询', icon: 'query' }
+      }
+    ]
+  },
+  {
+    path: '/findManufacturer',
+    component: Layout,
+    redirect: '/findManufacturer/query',
+    name: 'findDrugManufacturer',
+    meta: { title: '药品厂家', icon: 'query' },
+    children: [
+      {
+        path: 'query',
+        name: 'drugManufacturerQuery',
+        component: () => import('@/views/findManufacturer/query.vue'),
+        meta: { title: '药品厂家查询', icon: 'query' }
       }
     ]
   },

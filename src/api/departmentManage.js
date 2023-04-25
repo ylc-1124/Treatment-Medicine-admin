@@ -10,4 +10,16 @@ export default {
       }
     })
   },
+  getAllDepartments(){
+    return request({
+      url: '/department/all',
+      method: 'get',
+    })
+  },
+  getDepartmentListByHospId(hospId){
+    return request({
+      url: `/department/${hospId}`,
+      method: 'get',
+    })
+  }
 }

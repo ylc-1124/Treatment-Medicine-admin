@@ -21,4 +21,11 @@ export default {
       data: conRec
     })
   },
+  saveConsultRecord(conRec){
+    return request({
+      url: '/consultRecord/add',
+      method: 'post',
+      data: conRec
+    })
+  }
 }

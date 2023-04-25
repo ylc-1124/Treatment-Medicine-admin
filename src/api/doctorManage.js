@@ -10,6 +10,8 @@ export default {
         pageNo: searchModel.pageNo,
         pageSize: searchModel.pageSize,
         doctorName: searchModel.doctorName,
+        depId:searchModel.depId,
+        hospId: searchModel.hospId
       }
     })
   },
