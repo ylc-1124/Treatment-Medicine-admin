@@ -81,8 +81,8 @@
           width="200"
         >
           <template slot-scope="scope">
-            <el-button @click="updateConsultRecord(scope.row,3)" size="medium" type="primary" round>完成</el-button>
-            <el-button v-if="scope.row.presId == null" @click="openPresForm(scope.row)" size="medium" type="success" round>开处方</el-button>
+            <el-button @click="updateConsultRecord(scope.row,3)" size="small" type="primary" >完成</el-button>
+            <el-button v-if="scope.row.presId == null" @click="openPresForm(scope.row)" size="small" type="success" >开处方</el-button>
           </template>
         </el-table-column>
       </el-table>

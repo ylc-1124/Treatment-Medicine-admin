@@ -241,8 +241,6 @@ import { validUsername } from '@/utils/validate'
 import hospApi from '@/api/hospitalManage'
 import departmentApi from '@/api/departmentManage'
 import doctorApi from '@/api/doctorManage'
-import message from 'element-ui/packages/message'
-import roleApi from '@/api/roleManage'
 
 export default {
   name: 'Login',

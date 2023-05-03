@@ -93,12 +93,13 @@
         </el-table-column>
         <el-table-column
           label="操作"
-          width="180"
+          width="200"
         >
           <template slot-scope="scope">
             <el-button @click="openddxqDialog(scope.row.id)" type="primary" size="small" >详情</el-button>
-            <el-button v-if="scope.row.status == 0" @click="updateOrder(scope.row,4)" type="info" size="small" >取消订单</el-button>
-            <el-button v-if="scope.row.status == 1" @click="updateOrder(scope.row,2)" type="warning" size="small" >确认发货</el-button>
+            <el-button v-if="scope.row.status == 0" @click="pay(scope.row)" type="danger" size="small" >去支付</el-button>
+            <el-button v-if="scope.row.status == 4" @click="removeOrder(scope.row.id)" type="info" size="small" >删除订单</el-button>
+            <el-button v-if="scope.row.status == 2" @click="confirmReceived(scope.row)" type="warning" size="small" >确认收货</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -187,7 +188,7 @@ import orderApi from '@/api/orderManage'
 import orderDetailApi from '@/api/orderDetailManage'
 
 export default {
-  name: 'info',
+  name: 'myOrder',
   data() {
     return {
       options: [{
@@ -220,15 +221,14 @@ export default {
     }
   },
   methods: {
-    updateOrder(order,status){
+    removeOrder(orderId){
       this.$confirm(`您确认进行此修改吗？`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        order.status = status
         //后端设置并更新订单状态
-        orderApi.updateOrder(order).then(
+        orderApi.removeOrder(orderId).then(
           response => {
             this.$message({
               type: 'success',
@@ -244,6 +244,32 @@ export default {
         });
       });
     },
+    confirmReceived(order){
+      this.$confirm(`您确认进行此修改吗？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        //后端设置并更新订单状态
+        orderApi.confirmReceivedByOrderId(order.id).then(
+          response => {
+            this.$message({
+              type: 'success',
+              message: response.msg
+            })
+            this.getOrderList()
+          }
+        )
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消修改'
+        });
+      });
+    },
+    pay(order){
+      window.open(`http://localhost:9999/alipay/pay?subject=药品购买订单&traceNo=${order.orderNo}&totalAmount=${order.totalAmount}`)
+    },
 
     handleSizeChange(pageSize) {// pageSize修改的回调
       this.searchModel.pageSize = pageSize
@@ -256,7 +282,7 @@ export default {
     // 更新页面数据
     getOrderList() {
       //根据当前用户ID查询出处方列表
-      orderApi.getOrderListForAdmin(this.searchModel).then(
+      orderApi.getOrderList(this.searchModel).then(
         response => {
           this.orderList = response.data.rows
           this.total = response.data.total

@@ -47,5 +47,23 @@ export default {
       url: `/user/delete/${id}`,
       method: 'delete'
     })
+  },
+  getUsernameByDocId(docId){
+    return request({
+      url: '/user/getUsernameByDocId',
+      method: 'get',
+      params: {
+        docId
+      }
+    })
+  },
+  getUsernameByPatId(patId){
+    return request({
+      url: '/user/getUsernameByPatId',
+      method: 'get',
+      params: {
+        patId
+      }
+    })
   }
 }

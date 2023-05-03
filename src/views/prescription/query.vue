@@ -85,8 +85,8 @@
           width="200"
         >
           <template slot-scope="scope">
-            <el-button @click="openEditUI(scope.row.id)" type="primary" round>详情</el-button>
-            <el-button v-if="scope.row.status == 0" @click="updateStatus(scope.row,1)" type="success" round>完成</el-button>
+            <el-button @click="openEditUI(scope.row.id)" type="primary" size="small">详情</el-button>
+            <el-button v-if="scope.row.status == 0" @click="updateStatus(scope.row,1)" type="success" size="small">完成</el-button>
           </template>
         </el-table-column>
       </el-table>

@@ -34,7 +34,7 @@
         <el-table-column
           prop="name"
           label="厂家名称"
-          width="200"
+          width="280"
         >
         </el-table-column>
         <el-table-column

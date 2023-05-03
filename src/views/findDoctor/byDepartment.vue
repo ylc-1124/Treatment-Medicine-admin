@@ -201,6 +201,7 @@ export default {
     },
     openWzUI(doctor){
       this.consultRecordForm.docId = doctor.id
+      this.consultRecordForm.docName = doctor.doctorName
       this.consultRecordFormVisible = true
     },
     beforejczlUpload(file){

@@ -71,7 +71,7 @@
           width="180"
         >
           <template slot-scope="scope">
-            <el-button @click="openEditUI(scope.row.id)" type="primary"  round>详情</el-button>
+            <el-button @click="openEditUI(scope.row.id)" type="primary" size="small">详情</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -90,43 +90,25 @@
       </el-pagination>
     </div>
     <!--    信息编辑对话框-->
-    <el-dialog @close="clearForm" :title="title" :visible.sync="dialogFormVisible">
-      <el-form ref="drugFormRef" :model="drugForm">
-        <el-form-item label="药品通用名" :label-width="formLabelWidth">
-          <el-input   v-model="drugForm.genericName" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="功能主治" :label-width="formLabelWidth">
-          <el-input
-            type="textarea"
-            autosize
-            v-model="drugForm.function" style="width: 85%">
-          </el-input>
-        </el-form-item>
-        <el-form-item label="不良反应" :label-width="formLabelWidth">
-          <el-input
-            type="textarea"
-            autosize
-            placeholder="不良反应"
-            v-model="drugForm.adrs" style="width: 85%">
-          </el-input>
-        </el-form-item>
-        <el-form-item label="禁忌" :label-width="formLabelWidth">
-          <el-input
-            type="textarea"
-            autosize
-            placeholder="请输入药品禁忌事项"
-            v-model="drugForm.taboo" style="width: 85%">
-          </el-input>
-        </el-form-item>
-        <el-form-item label="用药注意事项" :label-width="formLabelWidth">
-          <el-input
-            type="textarea"
-            autosize
-            placeholder="注意事项"
-            v-model="drugForm.medicationPrecautions" style="width: 85%">
-          </el-input>
-        </el-form-item>
-      </el-form>
+    <el-dialog @close="clearDrugInfo" :title="title" :visible.sync="dialogFormVisible">
+      <el-card>
+        <el-row>
+          <el-col :span="4">
+            <h2>{{drugInfo.genericName}}</h2>
+          </el-col>
+        </el-row>
+      </el-card>
+
+      <el-card>
+        <h2>功能主治</h2>
+        <span>{{drugInfo.function}}</span>
+        <h2>不良反应</h2>
+        <span>{{drugInfo.adrs}}</span>
+        <h2>禁忌</h2>
+        <span>{{drugInfo.taboo}}</span>
+        <h2>用药注意事项</h2>
+        <span>{{drugInfo.medicationPrecautions}}</span>
+      </el-card>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">关 闭</el-button>
       </div>
@@ -155,14 +137,13 @@ export default {
       total: 0,
       title: ' ',
       dialogFormVisible: false,
-      drugForm: {},
+      drugInfo: {},
       formLabelWidth: '130px',
     }
   },
   methods: {
-    clearForm() {
-      this.drugForm = {}
-      this.$refs.drugFormRef.clearValidate()
+    clearDrugInfo() {
+      this.drugInfo = {}
     },
     handleSizeChange(pageSize) {// pageSize修改的回调
       this.searchModel.pageSize = pageSize
@@ -192,7 +173,7 @@ export default {
         //根据id查询用户信息
         drugApi.getDrugById(id).then(
           response => {
-            this.drugForm = response.data
+            this.drugInfo = response.data
           }
         )
       }

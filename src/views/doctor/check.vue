@@ -79,8 +79,8 @@
           width="200"
         >
           <template slot-scope="scope">
-            <el-button @click="updateStatus(scope.row,1)" type="success" round  >通过</el-button>
-            <el-button @click="updateStatus(scope.row,2)" type="danger" round >拒绝</el-button>
+            <el-button v-if="scope.row.status == 0" @click="updateStatus(scope.row,1)" type="success" size="small" >通过</el-button>
+            <el-button v-if="scope.row.status == 0" @click="updateStatus(scope.row,2)" type="danger" size="small" >拒绝</el-button>
           </template>
         </el-table-column>
       </el-table>

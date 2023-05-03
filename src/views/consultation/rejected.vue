@@ -4,7 +4,7 @@
     <el-card id="search">
       <el-row>
         <el-col :span="20">
-          <el-input @change="getConsultRecordList" v-model="searchModel.patName " placeholder="患者姓名" clearable></el-input>
+          <el-input @change="getConsultRecordList" v-model="searchModel.docName " placeholder="医生姓名" clearable></el-input>
           <el-button @click="getConsultRecordList" type="primary" round icon="el-icon-search">查询</el-button>
         </el-col>
       </el-row>
@@ -26,9 +26,9 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="patName"
-          label="患者姓名"
-          width="180"
+          prop="docName"
+          label="医生姓名"
+          width="120"
         >
         </el-table-column>
         <el-table-column
@@ -40,6 +40,7 @@
         <el-table-column
           prop="jczl"
           label="检查资料"
+          width="180px"
         >
           <template slot-scope="scope">
             <el-image
@@ -52,15 +53,20 @@
         <el-table-column
           prop="status"
           label="问诊状态"
-          width="180"
+          width="120"
         >
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.status == 0">待处理</el-tag>
-            <el-tag v-else-if="scope.row.status == 1" type="success">已同意</el-tag>
-            <el-tag v-else-if="scope.row.status == 2" type="danger">已问诊</el-tag>
-            <el-tag v-else-if="scope.row.status == 3" type="danger">已完成</el-tag>
+            <el-tag v-if="scope.row.status == 0" type="primary">已发送</el-tag>
+            <el-tag v-else-if="scope.row.status == 1" type="warning">待问诊</el-tag>
+            <el-tag v-else-if="scope.row.status == 2" type="warning">待开具处方</el-tag>
+            <el-tag v-else-if="scope.row.status == 3" type="success">问诊完成</el-tag>
             <el-tag v-else-if="scope.row.status == 4" type="danger">已拒绝</el-tag>
           </template>
+        </el-table-column>
+        <el-table-column
+          prop="jjly"
+          label="拒绝理由"
+        >
         </el-table-column>
         <el-table-column
           prop="createDate"
@@ -69,13 +75,10 @@
         >
         </el-table-column>
         <el-table-column
-          label="操作"
-          width="200"
+          prop="processDate"
+          label="处理日期"
+          width="180"
         >
-          <template slot-scope="scope">
-            <el-button @click="updateConsultRecord(scope.row,1)" size="small" type="success"  >接收</el-button>
-            <el-button @click="updateConsultRecord(scope.row,4)" size="small" type="danger"  >拒绝</el-button>
-          </template>
         </el-table-column>
       </el-table>
     </el-card>
@@ -98,74 +101,19 @@
 <script>
 import consultRecordApi from '@/api/consultRecordManage'
 export default {
-  name: 'handle',
+  name: 'onlinePat',
   data() {
     return {
       searchModel: {
         pageNo: 1,
         pageSize: 10,
-        status: 0  //查询待处理的记录
+        status: 4  //查询已发送的记录
       },
       consultRecordList: [],
       total: 0,
     }
   },
   methods: {
-    updateConsultRecord(consRecord,status){
-      if (status == 1){
-        //接受问诊请求，之后便可以进行在线问诊
-        this.$confirm(`您确认进行此修改吗？`, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          consRecord.status = status
-          consultRecordApi.updateConsultRecord(consRecord).then(
-            response=>{
-              this.$message({
-                message: response.msg,
-                type: 'success'
-              })
-              // 刷新数据
-              this.getConsultRecordList()
-            }
-          )
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消修改'
-          });
-        });
-      }else if (status == 4){
-        //拒绝接受问诊请求
-
-        //1、写拒绝的理由
-        this.$prompt('请输入拒绝理由', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-        }).then(({ value }) => {
-          consRecord.status = status
-          consRecord.jjly = value
-          //2、更新
-          consultRecordApi.updateConsultRecord(consRecord).then(
-            response => {
-              this.$message({
-                message: response.msg,
-                type: 'success'
-              })
-              this.getConsultRecordList()
-            }
-          )
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '取消输入'
-          });
-        });
-
-      }
-
-    },
     handleSizeChange(pageSize) {// pageSize修改的回调
       this.searchModel.pageSize = pageSize
       this.getConsultRecordList()
@@ -176,7 +124,7 @@ export default {
     },
     // 更新页面数据
     getConsultRecordList() {
-      consultRecordApi.getConsultRecordList(this.searchModel).then(
+      consultRecordApi.getConsultRecordListForPat(this.searchModel).then(
         response => {
           this.consultRecordList = response.data.rows
           this.total = response.data.total

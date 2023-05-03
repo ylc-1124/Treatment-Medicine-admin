@@ -9,6 +9,7 @@ export default {
         pageNo: searchModel.pageNo,
         pageSize: searchModel.pageSize,
         prodName :searchModel.prodName,
+        pcId: searchModel.pcId
       }
     })
   },

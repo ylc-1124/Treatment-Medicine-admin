@@ -187,7 +187,7 @@
           >
             <template slot-scope="scope">
               <el-button @click="openysXqUI(scope.row)" size="small" type="primary">详情</el-button>
-              <el-button @click="" size="small" type="warning">问诊</el-button>
+              <el-button @click="openWzUI(scope.row)" size="small" type="warning">问诊</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -245,6 +245,32 @@
       </div>
     </el-dialog>
 
+    <!--    对话框嵌套问诊表单-->
+    <el-dialog @close="clearConsultRecordForm" title="问诊记录" :visible.sync="consultRecordFormVisible">
+      <el-form ref="consultRecordFormRef" :model="consultRecordForm" >
+        <el-form-item label="病情简述" :label-width="formLabelWidth" >
+          <el-input style="width: 85%" v-model="consultRecordForm.bqjs" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="检查资料" :label-width="formLabelWidth">
+          <el-upload
+            class="avatar-uploader"
+            :action="uploadURL"
+            :show-file-list="false"
+            :limit="1"
+            list-type="picture-card"
+            :on-success="handlejczlSuccess"
+            :before-upload="beforejczlUpload">
+            <img v-if="jczlUrl" :src="jczlUrl" alt="" width="100%" >
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="consultRecordFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveConsultRecord">提 交</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 
 </template>
@@ -253,10 +279,14 @@
 import hospApi from '@/api/hospitalManage'
 import depApi from '@/api/departmentManage'
 import docApi from '@/api/doctorManage'
+import conRecApi from '@/api/consultRecordManage'
 export default {
   name: 'byHospital',
   data(){
     return{
+      jczlUrl: '',
+      uploadURL: process.env.VUE_APP_BASE_API + '/oss/fileUpload', //图片上传的URL
+      consultRecordForm: {},
       doctorList: [],
       hospitalList: [], //查询出的医院列表
       hospitalInfo: {},
@@ -269,10 +299,53 @@ export default {
       total: 0,
       hospDialogVisible: false,
       docDialogVisible: false,
-      title: '详细信息'
+      consultRecordFormVisible: false,
+      title: '详细信息',
+      formLabelWidth: '130px'
     }
   },
   methods:{
+    saveConsultRecord(){
+      conRecApi.saveConsultRecord(this.consultRecordForm).then(
+        response => {
+          this.$message({
+            message: response.msg,
+            type: 'success'
+          })
+          this.consultRecordFormVisible = false
+        }
+      )
+    },
+    openWzUI(doctor){
+      this.consultRecordForm.docId = doctor.id
+      this.consultRecordForm.docName = doctor.doctorName
+      this.consultRecordFormVisible = true
+    },
+    clearConsultRecordForm(){
+      this.consultRecordForm = {}
+      this.jczlUrl = ''
+      this.consultRecordFormVisible = false
+    },
+    handlejczlSuccess(res, file){
+      this.consultRecordForm.jczl = res.data  //注入url
+      this.jczlUrl = URL.createObjectURL(file.raw); //回显上传的图片
+      this.$message({
+        message: res.msg,
+        type: 'success'
+      })
+    },
+    beforejczlUpload(file){
+      const isJPG = file.type === 'image/jpeg';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      if (!isJPG) {
+        this.$message.error('上传图片只能是 JPG 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过 2MB!');
+      }
+      return isJPG && isLt2M;
+    },
     closeysDialog(){  //关闭医生详情对话框
       this.doctorInfo = {}
       this.searchModel = { pageNo: 1, pageSize: 10 },
@@ -329,9 +402,9 @@ export default {
       this.searchModel.pageNo = pageNo
       this.getHospitalList()
     },
-    mounted(){
-      this.getHospitalList()
-    }
+  },
+  mounted(){
+    this.getHospitalList()
   }
 }
 </script>
